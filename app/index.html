@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Shopping Vue.js</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/main.css">
+</head>
+<body>
+<div id="app" class="container">
+    <h2>{{ title }}</h2>
+    <items>
+    </items>
+    <add-items></add-items>
+    <div class="footer">
+        <hr/>
+        <em>Change the title of your shopping list here</em>
+        <menu-items></menu-items>
+    </div>
+</div>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.0.3/vue.js">
+</script>
+<script>
+    var data = {
+        items: [{text: 'Bananas', checked: true},
+            {text: 'Apples', checked: false}],
+        title: 'My Shopping List',
+        newItem: ''
+    };
+
+    var titleComponent = Vue.extend({
+        data: function() {
+            return data;
+        },
+        template: '<input v-model="title"/>'
+    });
+
+    var itemsComponent = Vue.extend({
+        data: function() {
+            return data;
+        },
+        template: '<ul>' +
+        '        <li v-for="item in items" v-bind:class="{ \'removed\':' +
+        'item.checked }" @dblclick="removeItem(item)">' +
+        '            <div class="checkbox">' +
+        '                <label>' +
+        '                    <input type="checkbox" v-model="item.checked"> {{item.text }}' +
+        '                </label>' +
+        '            </div>' +
+        '        </li>' +
+        '    </ul>',
+        methods: {
+            removeItem: function(item) {
+                if (this.items.length <= 1) {
+                    this.items = [];
+                    return
+                }
+                var index = 0;
+                for (var i = 0; i < this.items.length; i++) {
+                    console.log("current index", i);
+                    console.log(this.items[i].text, item.text);
+                    if(this.items[i].text == item.text) {
+                        index = i;
+                        break;
+                    }
+                }
+                this.items.splice(index, 1);
+            }
+        }
+    });
+
+    var addItemComponent = Vue.extend({
+        data: function() {
+            return data;
+        },
+        template: '<div class="input-group">' +
+        '        <input v-model="newItem" @keyup.enter="addItem" placeholder="add shopping list item" type="text" class="form-control">' +
+        '        <span class="input-group-btn">' +
+        '            <button @click="addItem" class="btn btn-default" type="button">Add!</button>' +
+        '        </span>' +
+        '    </div>',
+        methods: {
+            addItem: function () {
+                var text;
+                text = this.newItem.trim();
+                if (text) {
+                    this.items.push({
+                        text: text,
+                        checked: false
+                    });
+                    this.newItem = '';
+                }
+            }
+        }
+    });
+
+    Vue.component('items', itemsComponent);
+    Vue.component('add-items', addItemComponent);
+    Vue.component('menu-items', titleComponent);
+
+    new Vue({
+        el: '#app',
+        data: data
+    });
+</script>
+</html>
